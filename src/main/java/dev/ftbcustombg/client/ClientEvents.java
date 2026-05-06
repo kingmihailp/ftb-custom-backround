@@ -48,10 +48,24 @@ public final class ClientEvents {
         // (required=true, defaultPosition=TOP, fixedPosition=true)
         PackSelectionConfig selectionConfig = new PackSelectionConfig(true, Pack.Position.TOP, true);
 
+        // ResourcesSupplier is not a @FunctionalInterface in this NeoForge build
+        // (it has multiple abstract methods), so we use an anonymous class.
+        Pack.ResourcesSupplier supplier = new Pack.ResourcesSupplier() {
+            @Override
+            public net.minecraft.server.packs.PackResources openPrimary(PackLocationInfo location) {
+                return new CustomTexturePackResources(location);
+            }
+
+            @Override
+            public net.minecraft.server.packs.PackResources openFull(PackLocationInfo location, Pack.Metadata metadata) {
+                return new CustomTexturePackResources(location);
+            }
+        };
+
         event.addRepositorySource(consumer -> {
             Pack pack = Pack.readMetaAndCreate(
                     info,
-                    pli -> new CustomTexturePackResources(pli),
+                    supplier,
                     PackType.CLIENT_RESOURCES,
                     selectionConfig
             );
