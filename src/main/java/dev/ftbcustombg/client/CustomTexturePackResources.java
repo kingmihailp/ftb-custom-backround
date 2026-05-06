@@ -6,6 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
+import net.minecraft.server.packs.repository.PackLocationInfo;
 import net.minecraft.server.packs.resources.IoSupplier;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,17 +24,32 @@ import java.util.stream.Collectors;
 /**
  * A virtual resource pack that replaces configured FTB Library / FTB Quests
  * background textures with the user's custom image file.
+ *
+ * In MC 1.21.1, {@link PackResources} requires {@link #location()} (replaces
+ * the old {@code packId()} / {@code isBuiltin()} pair).
  */
 public class CustomTexturePackResources implements PackResources {
 
-    private static final String PACK_ID = FTBCustomBG.MOD_ID + ":custom_background";
-
-    // Minimal pack.mcmeta – pack_format 34 covers Minecraft 1.21.x
+    // Minimal pack.mcmeta – pack_format 34 covers Minecraft 1.21 / 1.21.1
     private static final byte[] PACK_META = """
             {"pack":{"description":"FTB Custom Background","pack_format":34}}
             """.stripIndent().getBytes(StandardCharsets.UTF_8);
 
-    // -----------------------------------------------------------------------
+    private final PackLocationInfo locationInfo;
+
+    public CustomTexturePackResources(PackLocationInfo locationInfo) {
+        this.locationInfo = locationInfo;
+    }
+
+    // ------------------------------------------------------------------
+    // MC 1.21.1 PackResources interface
+    // ------------------------------------------------------------------
+
+    /** Replaces the old packId() / isBuiltin() pair from MC 1.20.x. */
+    @Override
+    public PackLocationInfo location() {
+        return locationInfo;
+    }
 
     @Override
     public @Nullable IoSupplier<InputStream> getRootResource(String... paths) {
@@ -92,19 +108,9 @@ public class CustomTexturePackResources implements PackResources {
     }
 
     @Override
-    public String packId() {
-        return PACK_ID;
-    }
-
-    @Override
-    public boolean isBuiltin() {
-        return true;
-    }
-
-    @Override
     public void close() {}
 
-    // -----------------------------------------------------------------------
+    // ------------------------------------------------------------------
 
     private boolean isTargeted(ResourceLocation loc) {
         return getTargetLocations().stream().anyMatch(t -> t.equals(loc));
