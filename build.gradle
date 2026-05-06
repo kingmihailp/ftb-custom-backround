@@ -1,0 +1,83 @@
+plugins {
+    id 'java'
+    id 'net.neoforged.gradle.userdev' version '7.0.142'
+}
+
+version = project.mod_version
+group = project.mod_group_id
+
+base {
+    archivesName = project.mod_id
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+runs {
+    configureEach {
+        systemProperty 'forge.logging.markers', 'REGISTRIES'
+        systemProperty 'forge.logging.console.level', 'debug'
+        modSource project.sourceSets.main
+    }
+
+    client {
+        systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+    }
+}
+
+repositories {
+    maven {
+        name = 'FTB Maven'
+        url = 'https://maven.saps.dev/minecraft'
+        content {
+            includeGroup 'dev.ftb.mods'
+        }
+    }
+    maven {
+        name = 'FTB Maven 2'
+        url = 'https://maven.ftb.dev/releases'
+        content {
+            includeGroup 'dev.ftb.mods'
+        }
+    }
+}
+
+dependencies {
+    implementation "net.neoforged:neoforge:${project.neo_version}"
+
+    // FTB Quests – compile-only so the mod works whether or not it's present.
+    // Adjust the version to the one you have installed.
+    // Check https://www.curseforge.com/minecraft/mc-mods/ftb-quests-forge for the latest build.
+    compileOnly "dev.ftb.mods:ftb-quests-neoforge:2101.1.0:api"
+}
+
+tasks.withType(ProcessResources).configureEach {
+    def replaceProperties = [
+        minecraft_version: project.minecraft_version,
+        neo_version      : project.neo_version,
+        mod_id           : project.mod_id,
+        mod_name         : project.mod_name,
+        mod_license      : project.mod_license,
+        mod_version      : project.mod_version,
+        mod_authors      : project.mod_authors,
+        mod_description  : project.mod_description,
+    ]
+    inputs.properties replaceProperties
+    filesMatching(['META-INF/neoforge.mods.toml']) {
+        expand replaceProperties
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+jar {
+    manifest {
+        attributes([
+            'Specification-Title'   : project.mod_id,
+            'Specification-Version' : '1',
+            'Implementation-Title'  : project.name,
+            'Implementation-Version': project.jar.archiveVersion,
+        ])
+    }
+}
