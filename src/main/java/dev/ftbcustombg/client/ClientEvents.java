@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.PackLocationInfo;
+import net.minecraft.server.packs.repository.PackSelectionConfig;
 import net.minecraft.server.packs.repository.PackSource;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -43,12 +44,16 @@ public final class ClientEvents {
                 Optional.empty()
         );
 
+        // PackSelectionConfig replaced the bare Pack.Position parameter in NeoForge 1.21.1.
+        // (required=true, defaultPosition=TOP, fixedPosition=true)
+        PackSelectionConfig selectionConfig = new PackSelectionConfig(true, Pack.Position.TOP, true);
+
         event.addRepositorySource(consumer -> {
             Pack pack = Pack.readMetaAndCreate(
                     info,
                     pli -> new CustomTexturePackResources(pli),
                     PackType.CLIENT_RESOURCES,
-                    Pack.Position.TOP
+                    selectionConfig
             );
             if (pack != null) {
                 consumer.accept(pack);
