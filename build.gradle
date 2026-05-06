@@ -24,30 +24,13 @@ runs {
     }
 }
 
-repositories {
-    maven {
-        name = 'FTB Maven'
-        url = 'https://maven.saps.dev/minecraft'
-        content {
-            includeGroup 'dev.ftb.mods'
-        }
-    }
-    maven {
-        name = 'FTB Maven 2'
-        url = 'https://maven.ftb.dev/releases'
-        content {
-            includeGroup 'dev.ftb.mods'
-        }
-    }
-}
-
 dependencies {
     implementation "net.neoforged:neoforge:${project.neo_version}"
 
-    // FTB Quests – compile-only so the mod works whether or not it's present.
-    // Adjust the version to the one you have installed.
-    // Check https://www.curseforge.com/minecraft/mc-mods/ftb-quests-forge for the latest build.
-    compileOnly "dev.ftb.mods:ftb-quests-neoforge:2101.1.0:api"
+    // No compile-time dependency on FTB Quests / FTB Library is needed.
+    // The mixin uses string-based class targeting (@Mixin targets = "..."),
+    // and none of our source files import any FTB classes directly.
+    // At runtime the mod simply does nothing when FTB Quests is absent.
 }
 
 tasks.withType(ProcessResources).configureEach {

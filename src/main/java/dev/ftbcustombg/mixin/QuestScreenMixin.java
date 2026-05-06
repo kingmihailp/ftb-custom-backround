@@ -1,6 +1,5 @@
 package dev.ftbcustombg.mixin;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import dev.ftbcustombg.Config;
 import dev.ftbcustombg.client.CustomTextureManager;
 import net.minecraft.client.gui.GuiGraphics;
